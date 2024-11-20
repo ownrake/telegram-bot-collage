@@ -1,0 +1,43 @@
+from sqlalchemy import String, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
+
+engine = create_async_engine(url = "sqlite+aiosqlite:///database.sqlite3")
+
+async_session = async_sessionmaker(engine)
+
+
+class Base(AsyncAttrs, DeclarativeBase):
+    pass
+
+
+class Lesson(Base):
+    __tablename__ = "lessons"
+
+    id: Mapped[int] = mapped_column(primary_key = True)
+    week: Mapped[str] = mapped_column(String(12), server_default = "-")
+    day: Mapped[str] = mapped_column(String(12), server_default = "-")
+    count: Mapped[str] = mapped_column(String(12), server_default = "-")
+    time: Mapped[str] = mapped_column(String(24), server_default = "-")
+    name: Mapped[str] = mapped_column(String(255), server_default = "-")
+    classroom: Mapped[str] = mapped_column(String(12), server_default = "-")
+    teacher: Mapped[str] = mapped_column(String(24), server_default = "-")
+
+
+class CallSchedule(Base):
+    __tablename__ = "countingLesson"
+
+    id: Mapped[int] = mapped_column(primary_key = True)
+    first_lesson: Mapped[str] = mapped_column(String(48), server_default = "-")
+    second_lesson: Mapped[str] = mapped_column(String(48), server_default = "-")
+    third_lesson: Mapped[str] = mapped_column(String(48), server_default = "-")
+    fourth_lesson: Mapped[str] = mapped_column(String(48), server_default = "-")
+    fifth_lesson: Mapped[str] = mapped_column(String(48), server_default = "-")
+    sixth_lesson: Mapped[str] = mapped_column(String(48), server_default = "-")
+
+
+async def async_main():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
