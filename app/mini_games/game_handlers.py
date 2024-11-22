@@ -8,7 +8,7 @@ from app.user.user_keyboards import schludeMain
 gameRouter = Router()
 
 
-@gameRouter.callback_query(F.data == "miniGamesCall")
+'''@gameRouter.callback_query(F.data == "miniGamesCall")
 async def miniGames(callback: CallbackQuery):
     await callback.answer("")
-    await callback.message.edit_text("ПРивет")
+    await callback.message.edit_text("ПРивет")'''

@@ -1,4 +1,4 @@
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, BigInteger, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 
@@ -34,6 +34,15 @@ class CallSchedule(Base):
     fourth_lesson: Mapped[str] = mapped_column(String(48), server_default = "-")
     fifth_lesson: Mapped[str] = mapped_column(String(48), server_default = "-")
     sixth_lesson: Mapped[str] = mapped_column(String(48), server_default = "-")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = mapped_column(BigInteger, primary_key = True)
+    user_name: Mapped[str] = mapped_column(String(255))
+    wins: Mapped[int] = mapped_column(server_default = "0")
+    loses: Mapped[int] = mapped_column(server_default = "0")
 
 
 async def async_main():
