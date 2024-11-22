@@ -24,7 +24,7 @@ class Lesson(Base):
     teacher: Mapped[str] = mapped_column(String(24), server_default = "-")
 
 
-class CallSchedule(Base):
+class CallSchlude(Base):
     __tablename__ = "countingLesson"
 
     id: Mapped[int] = mapped_column(primary_key = True)

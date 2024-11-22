@@ -14,6 +14,16 @@ schludeMain = InlineKeyboardMarkup(inline_keyboard = [
     [InlineKeyboardButton(text = "‹ Назад", callback_data = "goToMainMenuCall")]
 ])
 
+schludeLessonMain = InlineKeyboardMarkup(inline_keyboard = [
+    [InlineKeyboardButton(text = "Четная", callback_data = "evenWeekCall"),
+     InlineKeyboardButton(text = "Нечетная", callback_data = "oddWeekCall")],
+     [InlineKeyboardButton(text = "‹ Назад", callback_data = "GoToSchludeMainCall")]
+])
+
 goToMain = InlineKeyboardMarkup(inline_keyboard = [
     [InlineKeyboardButton(text = "‹ Назад", callback_data = "goToMainMenuCall")]
+])
+
+GoToSchludeMain = InlineKeyboardMarkup(inline_keyboard = [
+    [InlineKeyboardButton(text = "‹ Назад", callback_data = "GoToSchludeMainCall")]
 ])

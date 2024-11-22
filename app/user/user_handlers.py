@@ -1,11 +1,10 @@
-import asyncio
-
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart
 
 import app.user.user_keyboards as kb
 from app.admin.admin_handlers import startAdmin
+import app.admin.admin_keyboards as akb
 import config as con
 
 import app.database.requests as rq
@@ -32,20 +31,34 @@ async def check_user_status(message: Message):
                                     reply_markup = kb.mainMenu, 
                                     parse_mode = "HTML")
     
-# -- ------------------------------------------------------------------------------------------------
+# ! --------------------------------------------------------------------------------------------------------------------------------
 
 @userRouter.callback_query(F.data == "schludeCall")
 async def schludeCall(call: CallbackQuery):
     await call.answer("")
-    await call.message.edit_text("Выберите тип расписания, который вам нужен",
+    await call.message.edit_text("Выберите тип расписания, который вам нужен.",
                                  reply_markup = kb.schludeMain)
     
+
+@userRouter.callback_query(F.data == "lessonCall")
+async def lessonCall(call: CallbackQuery):
+     await call.answer("")
+     await call.message.edit_text("Выберите тип недели.", reply_markup = kb.schludeLessonMain)
+
+
+@userRouter.callback_query(F.data == "callCall")
+async def callCall(call: CallbackQuery):
+    await call.answer("")
+    await call.message.edit_text(await rq.get_time_lesson(), reply_markup = kb.GoToSchludeMain)
+    
+
 @userRouter.callback_query(F.data == "orderCertificatesCall")
 async def orderCertificatesCall(call: Message):
     await call.answer("")
     await call.message.edit_text("Для заказа справок перейдите по кнопке ниже.",
                       reply_markup = kb.orderCertificates)
     
+
 @userRouter.callback_query(F.data == "profileCall")
 async def profileCall(call: CallbackQuery):
     user_id = call.from_user.id
@@ -53,13 +66,30 @@ async def profileCall(call: CallbackQuery):
     await call.answer("")
     await call.message.edit_text(await rq.get_profile(user_id), reply_markup = kb.goToMain)
 
-# -- ------------------------------------------------------------------------------------------------
+# ! --------------------------------------------------------------------------------------------------------------------------------
+
 @userRouter.callback_query(F.data == "goToMainMenuCall")
 async def goToMainMenuCall(call: CallbackQuery):
-    await call.message.edit_text("""💻 <a href = 'https://t.me/helperforgroup201is_bot'>Студенчиский платформа</a>.
+    if user_id in con.moder_id:
+        await call.answer("")
+        await call.message.edit_text("""💻 <a href = 'https://t.me/helperforgroup201is_bot'>Студенчиский платформа</a>.
+Узнавайте расписание, заказывайте справки и получайте оповещение об важных события.""", 
+                                    reply_markup = akb.mainMenuAdmin, 
+                                    parse_mode = "HTML")
+    
+    else:
+        await call.answer("")
+        await call.message.edit_text("""💻 <a href = 'https://t.me/helperforgroup201is_bot'>Студенчиский платформа</a>.
 Узнавайте расписание, заказывайте справки и получайте оповещение об важных события.""", 
                                     reply_markup = kb.mainMenu, 
                                     parse_mode = "HTML")
+
+
+@userRouter.callback_query(F.data == "GoToSchludeMainCall")
+async def GoToSchludeMainCall(call: CallbackQuery):
+    await call.answer("")
+    await call.message.edit_text("Выберите тип расписания, который вам нужен.",
+                                 reply_markup = kb.schludeMain)
 
 
 @userRouter.message()
