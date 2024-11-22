@@ -1,7 +1,7 @@
 # telegram-bot-collage
 
 ## Установки
-Установки библиотек важных для работы:
+Установка важных библиотек для проекта:
   ```bash
   pip install aiogram, sqlalchemy
 ```
