@@ -3,8 +3,7 @@
 ## Установки
 Установки библиотек важных для работы:
   ```bash
-  pip install aiogram
-  pip install sqlalschemy
+  pip install aiogram, sqlalchemy
 ```
 
 ## Описание
