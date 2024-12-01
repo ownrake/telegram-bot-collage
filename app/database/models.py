@@ -10,13 +10,24 @@ async_session = async_sessionmaker(engine)
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 
+class Week(Base):
+    __tablename__ = "weeks"
+
+    week: Mapped[str] = mapped_column(String(12), primary_key = True, server_default = "-")
+
+
+class Day(Base):
+    __tablename__ = "days"
+    
+    day: Mapped[str] = mapped_column(String(12), primary_key = True, server_default = "-")
+
 
 class Lesson(Base):
     __tablename__ = "lessons"
 
     id: Mapped[int] = mapped_column(primary_key = True)
-    week: Mapped[str] = mapped_column(String(12), server_default = "-")
-    day: Mapped[str] = mapped_column(String(12), server_default = "-")
+    week: Mapped[str] = mapped_column(ForeignKey("weeks.week"))
+    day: Mapped[str] = mapped_column(ForeignKey("days.day"))
     count: Mapped[str] = mapped_column(String(12), server_default = "-")
     time: Mapped[str] = mapped_column(String(24), server_default = "-")
     name: Mapped[str] = mapped_column(String(255), server_default = "-")
