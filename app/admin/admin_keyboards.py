@@ -48,7 +48,7 @@ day_type_odd = InlineKeyboardMarkup(inline_keyboard=[
      InlineKeyboardButton(text="Четверг", callback_data="update_thursday_odd")],
     [InlineKeyboardButton(text="Пятница", callback_data="update_friday_odd"),
      InlineKeyboardButton(text="Суббота", callback_data="update_saturday_odd")],
-    [InlineKeyboardButton(text="‹", callback_data="back_update_lessons")]
+    [InlineKeyboardButton(text="‹", callback_data="back_update_lessons_odd")]
 ])
 
 # -- ----------------

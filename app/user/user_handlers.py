@@ -186,7 +186,7 @@ async def schlude(call: CallbackQuery):
 
     @user_router.callback_query(F.data.in_(["calls"]))
     async def calls(call: CallbackQuery):
-        await call.message.edit_text(await rq.get_schlude(), reply_markup=kb.back_schlude_type)
+        await call.message.edit_text(await rq.get_time_lesson(), reply_markup=kb.back_schlude_type)
 
 
 @user_router.callback_query(F.data.in_(["order_certificates"]))

@@ -69,7 +69,12 @@ async def del_point(user_id):
 
 async def update_lessons(type_week, type_day, count, time, name, classroom, teacher):
     async with async_session() as session:
-        lesson_id = int(count)
-        stmt = update(Lesson).where(Lesson.id == lesson_id, Lesson.week == type_week, Lesson.day == type_day).values(count=count, time=time, name=name, classroom=classroom, teacher=teacher)
+        stmt = update(Lesson).where(Lesson.count == count, Lesson.week == type_week, Lesson.day == type_day).values(count=count, time=time, name=name, classroom=classroom, teacher=teacher)
+        await session.execute(stmt)
+        await session.commit()
+
+async def update_calls(first_lesson, second_lesson, third_lesson, fourth_lesson, fifth_lesson, sixth_lesson):
+    async with async_session() as session:
+        stmt = update(CallSchlude).where(CallSchlude.id == 1).values(first_lesson=first_lesson, second_lesson=second_lesson, third_lesson=third_lesson, fourth_lesson=fourth_lesson, fifth_lesson=fifth_lesson, sixth_lesson=sixth_lesson)
         await session.execute(stmt)
         await session.commit()
