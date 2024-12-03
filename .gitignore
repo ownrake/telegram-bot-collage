@@ -8,3 +8,5 @@ __pycache__/
 app/for_later
 
 config.py
+
+database.sqlite3

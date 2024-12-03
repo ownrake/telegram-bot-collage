@@ -1,224 +1,130 @@
-import logging
+import logging; import os; import time; import sys
+
+import pyautogui
+import subprocess
 
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart
 
-import config as con
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext
+
 import app.database.requests as rq
 import app.user.user_keyboards as kb
 
-from app.admin.admin_handlers import start_admin, back_main_menu_admin
-# import app.admin.admin_keyboards as admin_kb
+client = Router()
 
-user_router = Router()
+class Input_String(StatesGroup):
+    string = State()
 
 
-async def add_user(message: Message):
-    user = message.from_user
-    
-    await rq.set_user(user_id=user.id, user_name=user.first_name)
-
-@user_router.message(CommandStart())
+@client.message(CommandStart())
 async def start(message: Message):
-    await add_user(message=message)
+    await message.answer(f"user-pc: <code>{os.getlogin()}</code>\n\n🖥 Выбери действие из меню:", 
+        reply_markup=kb.main_menu,
+        parse_mode="HTML")
 
-    if message.from_user.id in con.moder_id:
-        await start_admin(message=message)
-    else:
-        await message.answer("""💻 <a href = 'https://t.me/helperforgroup201is_bot'>Студенчиский платформа</a>.
-Узнавайте расписание, заказывайте справки и получайте оповещение об важных события.""", 
-                                    reply_markup=kb.main_menu, 
-                                    parse_mode="HTML")
-
-
-# Далее главные функции и обработчики
-
-global user_checking_week_status
-global user_checking_day_status
-
-
-@user_router.callback_query(F.data.in_(["schlude", "back_schlude_type"]))
-async def schlude(call: CallbackQuery):
-    await call.message.edit_text("Выбери тип расписания.", reply_markup=kb.schlude_type)
-
-    @user_router.callback_query(F.data.in_(["lessons", "back_week_type", "back_week_type_odd"]))
-    async def lessons(call: CallbackQuery):
-        await call.message.edit_text("Выберите тип недели.", reply_markup=kb.week_type)
-
-
-        @user_router.callback_query(F.data.in_(["even_week", "back_day_type"]))
-        async def even_week(call: CallbackQuery):
-            global user_checking_week_status
-            user_checking_week_status = "Четная"
-            logging.info(f"user_checking_week_status: {user_checking_week_status}")
-
-            await call.message.edit_text("Выбери день недели.", reply_markup=kb.day_type)
-
-            @user_router.callback_query(F.data.in_(["monday", ""]))
-            async def monday(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Понедельник"
-                logging.info(F"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type)
-
-
-            @user_router.callback_query(F.data.in_(["tuesday", ""]))
-            async def tuesday(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Вторник"
-                logging.info(F"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type)
-
-
-            @user_router.callback_query(F.data.in_(["wendnesday", ""]))
-            async def wendnesday(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Среда"
-                logging.info(F"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type)
-
-
-            @user_router.callback_query(F.data.in_(["thursday", ""]))
-            async def thursday(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Четверг"
-                logging.info(F"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type)
-
-
-            @user_router.callback_query(F.data.in_(["friday", ""]))
-            async def friday(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Пятница"
-                logging.info(F"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type)
-
-
-            @user_router.callback_query(F.data.in_(["saturday", ""]))
-            async def saturday(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Суббота"
-                logging.info(F"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type)
-
-
-        @user_router.callback_query(F.data.in_(["odd_week", "back_day_type_odd"]))
-        async def odd_week(call: CallbackQuery):
-            global user_checking_week_status
-            user_checking_week_status = "Нечетная"
-            logging.info(f"user_checking_week_status: {user_checking_week_status}")
-
-            await call.message.edit_text("Выбери день недели.", reply_markup=kb.day_type_odd)
-
-
-            @user_router.callback_query(F.data.in_(["monday_odd", ""]))
-            async def monday_odd(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Понедельник"
-                logging.info(f"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type_odd)
-
-
-            @user_router.callback_query(F.data.in_(["tuesday_odd", ""]))
-            async def tuesday_odd(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Вторник"
-                logging.info(f"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type_odd)
-
-
-            @user_router.callback_query(F.data.in_(["wendnesday_odd", ""]))
-            async def wendnesday_odd(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Среда"
-                logging.info(f"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type_odd)
-
-
-            @user_router.callback_query(F.data.in_(["thursday_odd", ""]))
-            async def thursday_odd(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Четверг"
-                logging.info(f"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type_odd)
-
-
-            @user_router.callback_query(F.data.in_(["friday_odd", ""]))
-            async def friday_odd(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Пятница"
-                logging.info(f"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type_odd)
-
-
-            @user_router.callback_query(F.data.in_(["saturday_odd", ""]))
-            async def saturday_odd(call: CallbackQuery):
-                global user_checking_day_status
-                user_checking_day_status = "Суббота"
-                logging.info(f"user_checking_day_status: {user_checking_day_status}")
-
-                await call.message.edit_text(await rq.get_schlude(type_week=user_checking_week_status,
-                                            type_day=user_checking_day_status), reply_markup=kb.back_day_type_odd)
-
-
-    @user_router.callback_query(F.data.in_(["calls"]))
-    async def calls(call: CallbackQuery):
-        await call.message.edit_text(await rq.get_time_lesson(), reply_markup=kb.back_schlude_type)
-
-
-@user_router.callback_query(F.data.in_(["order_certificates"]))
-async def order_certificates(call: CallbackQuery):
-    await call.message.edit_text("Заказать справки вы можете перейдя по кнопке ниже.", reply_markup=kb.order_certificates)
-
-
-@user_router.callback_query(F.data.in_(["profile"]))
-async def profile(call: CallbackQuery):
-    await call.message.edit_text(await rq.get_profile(user_id=call.from_user.id), reply_markup=kb.back_main_menu)
-
-
-@user_router.callback_query(F.data.in_(["about_us"]))
-async def about_us(call: CallbackQuery):
-    await call.message.edit_text("unknow", reply_markup=kb.back_main_menu)
-
-
-# Далее возврат к главному сообщению и отправка сообщения непонимания
-
-
-@user_router.callback_query(F.data == "back_main_menu")
+@client.callback_query(F.data.in_(["back_main_menu"]))
 async def back_main_menu(call: CallbackQuery):
-    if call.from_user.id in con.moder_id:
-        await back_main_menu_admin(call)
-    else:
-        await call.message.edit_text("""💻 <a href = 'https://t.me/helperforgroup201is_bot'>Студенчиский платформа</a>.
-Узнавайте расписание, заказывайте справки и получайте оповещение об важных события.""", 
-                                    reply_markup=kb.main_menu, 
-                                    parse_mode="HTML")
-        
+    await call.message.edit_text(f"user-pc: <code>{os.getlogin()}</code>\n\n🖥 Выбери действие из меню:", 
+        reply_markup=kb.main_menu,
+        parse_mode="HTML")
 
-'''@user_router.message()
-async def handle_unknown_message(message: Message):
-    await message.answer("Прости я тебя не понял! Пожалуста используй кнопки.\n\nЕсли у тебя их нет используй ››› /start")
-    logging.info(f"Unknow message, @{(message.from_user.first_name).lower()}. Message: {message.text}")'''
+@client.callback_query(F.data.in_(["browser", "back_browser_menu"]))
+async def browser(call: CallbackQuery):
+    await call.message.edit_text("Какое действие вы хотите произвести.", 
+        reply_markup=kb.browser_menu)
+
+    @client.callback_query(F.data.in_(["open_browser"]))
+    async def open_browser(call: CallbackQuery):
+        await call.answer("Запускаю Firefox...")
+
+        file_path = r'C:/Program Files (x86)/Mozilla Firefox/firefox.exe'
+        subprocess.Popen([file_path])
+
+        time.sleep(2)
+
+        pyautogui.press('enter')
+
+        await call.answer("Firefox успешно запущен ✅")
+
+    @client.callback_query(F.data.in_(["close_browser"]))
+    async def close_browser(call: CallbackQuery):
+        try:
+            await call.answer("Попытка закрыть Firefox...")
+
+            os.system('taskkill /f /im firefox.exe')
+
+            await call.answer("FireFox успешно закрыт ✅")
+        except:
+            await call.answer("Не удалось закрыть FireFox 🤡")
+
+    @client.callback_query(F.data.in_(["close_tab"]))
+    async def close_tab(call: CallbackQuery):
+        try:
+            pyautogui.hotkey('ctrl', 'w')
+            await call.answer("Вкладка успешно закрыта ✅")
+        except:
+            await call.answer("Не удалось закрыть вкладку 🤡")
+
+    @client.callback_query(F.data.in_(["also_browser"]))
+    async def also_browser(call: CallbackQuery):
+        await call.message.edit_text("Выберите дополнительно взаимодействие с браузером",
+            reply_markup=kb.also_browser)
+
+        @client.callback_query(F.data.in_(["open_youtube"]))
+        async def open_youtube(call: CallbackQuery):
+            try:
+                await call.answer("Попытка открыть YouTube...")
+
+                pyautogui.hotkey('ctrl', 't')
+                pyautogui.moveTo(x=736, y=68)
+                pyautogui.click(button='left')
+                pyautogui.write('https://youtube.com')
+                pyautogui.press('enter')
+
+                await call.answer("YouTube успешно запущен ✅")
+            except:
+                await call.answer("Не удалось открыть YouTube 🤡")
+
+        @client.callback_query(F.data.in_(["open_user"]))
+        async def open_user(call: CallbackQuery, state: FSMContext):
+            await state.set_state(Input_String.string)
+            await call.message.answer("Отправьте ссылку или введите запрос (на Англиском).")
+
+            @client.message(Input_String.string)
+            async def input_string(message: Message, state: FSMContext):
+                await state.update_data(string=message.text)
+                data = await state.get_data()
+
+                pyautogui.hotkey('ctrl', 't')
+                pyautogui.moveTo(x=736, y=68)
+                pyautogui.click(button='left')
+                pyautogui.write(f'{data["string"]}')
+                pyautogui.press('enter')
+
+                await message.answer(f"<code>{data["string"]}</code> успешно открыт ✅",
+                    parse_mode="HTML")
+
+                await state.clear()
+
+                await message.answer("Выберите дополнительно взаимодействие с браузером", 
+                    reply_markup=kb.also_browser)
+
+@client.callback_query(F.data.in_(["tab"]))
+async def tab(call: CallbackQuery):
+    await call.message.edit_text("Выберите программу для открытия вкладки.",
+        reply_markup=kb.open_tab_program)
+
+    @client.callback_query(F.data.in_(["firefox_tab"]))
+    async def firefox_tab(call: CallbackQuery):
+        pyautogui.hotkey('win', '8')
+
+    @client.callback_query(F.data.in_(["discord_tab"]))
+    async def discord_tab(call: CallbackQuery):
+        pyautogui.hotkey('win', '4')
+
+    @client.callback_query(F.data.in_(["telegram_tab"]))
+    async def telegram_tab(call: CallbackQuery):
+        pyautogui.hotkey('win', '3')
